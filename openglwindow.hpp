@@ -11,6 +11,11 @@ struct Vertex {
   }
 };
 
+struct Shape {
+  std::string name;
+  GLulong verticesNumber;
+};
+
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
   void initializeGL() override;
@@ -32,7 +37,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_verticesToDraw{};
 
   std::vector<Vertex> m_vertices;
+  std::vector<Shape> m_shapes;
   std::vector<GLuint> m_indices;
+  std::vector<GLuint> m_verticesPerShape; //tobedeleted
 
   void loadModelFromFile(std::string_view path);
   void standardize();

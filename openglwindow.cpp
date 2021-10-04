@@ -30,7 +30,7 @@ void OpenGLWindow::initializeGL() {
   m_program = createProgramFromFile(getAssetsPath() + "loadmodel.vert", getAssetsPath() + "loadmodel.frag");
 
   // Load model
-  loadModelFromFile(getAssetsPath() + "bunny.obj");
+  loadModelFromFile(getAssetsPath() + "lego obj.obj");
   standardize();
 
   m_verticesToDraw = m_indices.size();
@@ -38,8 +38,7 @@ void OpenGLWindow::initializeGL() {
   // Generate VBO
   glGenBuffers(1, &m_VBO);
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(),
-               m_vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(), m_vertices.data(), GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   // Generate EBO
@@ -101,8 +100,16 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
   for (const auto& shape : shapes) {
     // Loop over faces(polygon)
     size_t indexOffset{0};
-    for (const auto faceNumber :
-         iter::range(shape.mesh.num_face_vertices.size())) {
+    fmt::print("{} {}\n", shape.mesh.indices.size(), shape.name);
+    
+    m_verticesPerShape.push_back(shape.mesh.indices.size());
+    Shape mappedShaped = Shape{
+      .name = shape.name,
+      .verticesNumber = shape.mesh.indices.size()
+    };
+    m_shapes.push_back(mappedShaped);
+
+    for (const auto faceNumber : iter::range(shape.mesh.num_face_vertices.size())) {
       // Number of vertices composing face f
       std::size_t numFaceVertices{shape.mesh.num_face_vertices[faceNumber]};
       // Loop over vertices in the face
@@ -133,6 +140,7 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
       indexOffset += numFaceVertices;
     }
   }
+
 }
 
 void OpenGLWindow::standardize() {
@@ -175,8 +183,11 @@ void OpenGLWindow::paintGL() {
   GLint angleLoc{glGetUniformLocation(m_program, "angle")};
   glUniform1f(angleLoc, m_angle);
 
-  // Draw triangles
-  glDrawElements(GL_TRIANGLES, m_verticesToDraw, GL_UNSIGNED_INT, nullptr);
+  GLulong previous = 0;
+  for (auto& shape : m_shapes) {
+    glDrawElements(GL_TRIANGLES, shape.verticesNumber, GL_UNSIGNED_INT, (void*)(previous * sizeof(GLuint)));
+    previous += shape.verticesNumber;    
+  }
 
   glBindVertexArray(0);
   glUseProgram(0);
