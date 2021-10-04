@@ -102,10 +102,10 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
     size_t indexOffset{0};
     fmt::print("{} {}\n", shape.mesh.indices.size(), shape.name);
     
-    m_verticesPerShape.push_back(shape.mesh.indices.size());
     Shape mappedShaped = Shape{
       .name = shape.name,
-      .verticesNumber = shape.mesh.indices.size()
+      .verticesNumber = shape.mesh.indices.size(),
+      .isActive = true
     };
     m_shapes.push_back(mappedShaped);
 
@@ -185,7 +185,9 @@ void OpenGLWindow::paintGL() {
 
   GLulong previous = 0;
   for (auto& shape : m_shapes) {
-    glDrawElements(GL_TRIANGLES, shape.verticesNumber, GL_UNSIGNED_INT, (void*)(previous * sizeof(GLuint)));
+    if (shape.isActive) {
+      glDrawElements(GL_TRIANGLES, shape.verticesNumber, GL_UNSIGNED_INT, (void*)(previous * sizeof(GLuint)));
+    }
     previous += shape.verticesNumber;    
   }
 
@@ -196,36 +198,40 @@ void OpenGLWindow::paintGL() {
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
 
-  // Create window for slider
-  {
-    ImGui::SetNextWindowPos(ImVec2(5, m_viewportHeight - 94));
-    ImGui::SetNextWindowSize(ImVec2(m_viewportWidth - 10, -1));
-    ImGui::Begin("Slider window", nullptr, ImGuiWindowFlags_NoDecoration);
+  // // Create window for slider
+  // {
+  //   ImGui::SetNextWindowPos(ImVec2(5, m_viewportHeight - 94));
+  //   ImGui::SetNextWindowSize(ImVec2(m_viewportWidth - 10, -1));
+  //   ImGui::Begin("Slider window", nullptr, ImGuiWindowFlags_NoDecoration);
 
-    // Create a slider to control the number of rendered triangles
-    {
-      // Slider will fill the space of the window
-      ImGui::PushItemWidth(m_viewportWidth - 25);
+  //   // Create a slider to control the number of rendered triangles
+  //   {
+  //     // Slider will fill the space of the window
+  //     ImGui::PushItemWidth(m_viewportWidth - 25);
 
-      static int n{m_verticesToDraw / 3};
-      ImGui::SliderInt("", &n, 0, m_indices.size() / 3, "%d triangles");
-      m_verticesToDraw = n * 3;
+  //     static int n{m_verticesToDraw / 3};
+  //     ImGui::SliderInt("", &n, 0, m_indices.size() / 3, "%d triangles");
+  //     m_verticesToDraw = n * 3;
 
-      ImGui::PopItemWidth();
-    }
+  //     ImGui::PopItemWidth();
+  //   }
 
-    ImGui::End();
-  }
+  //   ImGui::End();
+  // }
 
   // Create a window for the other widgets
   {
-    auto widgetSize{ImVec2(172, 62)};
+    auto widgetSize{ImVec2(172, 332)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
 
     static bool faceCulling{};
     ImGui::Checkbox("Back-face culling", &faceCulling);
+
+    for (auto& shape : m_shapes) {
+      ImGui::Checkbox(shape.name.c_str(), &shape.isActive);
+    }
 
     if (faceCulling) {
       glEnable(GL_CULL_FACE);

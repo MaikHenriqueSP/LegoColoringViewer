@@ -14,6 +14,7 @@ struct Vertex {
 struct Shape {
   std::string name;
   GLulong verticesNumber;
+  bool isActive;
 };
 
 class OpenGLWindow : public abcg::OpenGLWindow {
