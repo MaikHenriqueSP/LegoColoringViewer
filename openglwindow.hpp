@@ -42,13 +42,13 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   std::vector<Vertex> m_vertices;
   std::vector<Shape> m_shapes;
   std::vector<GLuint> m_indices;
-  std::vector<GLuint> m_verticesPerShape; //tobedeleted
   glm::vec4 m_skinColor;
   glm::vec4 m_lowerClothesColor;
   glm::vec4 m_upperClothesColor;
 
   void loadModelFromFile(std::string_view path);
   void standardize();
+  void setColor(Type type);
 };
 
 #endif
