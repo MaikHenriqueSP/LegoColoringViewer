@@ -2,7 +2,7 @@
 
 #include <fmt/core.h>
 #include <imgui.h>
-#include <tiny_obj_loader.h>
+
 
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
@@ -84,28 +84,13 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
   m_vertices.clear();
   m_indices.clear();
 
-  // A key:value map with key=Vertex and value=index
   std::unordered_map<Vertex, GLuint> hash{};
 
   for (const auto& shape : shapes) {
+    Shape mappedShaped = getShape(shape);    
+    m_shapes.push_back(mappedShaped);
 
     size_t indexOffset{0};
-    GLuint nameTypeDivisionIndex = shape.name.find("-");
-
-    std::string shapeName = shape.name.substr(0, nameTypeDivisionIndex);
-    std::string shapeType = shape.name.substr(nameTypeDivisionIndex + 1);
-
-    int shapeNumber = std::stoi(shapeType);
-    Type type = Type(shapeNumber);
-    
-    Shape mappedShaped = Shape{
-      .name = shapeName,
-      .verticesNumber = shape.mesh.indices.size(),
-      .isActive = true,
-      .type = type
-    };
-    
-    m_shapes.push_back(mappedShaped);
 
     for (const auto faceNumber : iter::range(shape.mesh.num_face_vertices.size())) {
       std::size_t numFaceVertices{shape.mesh.num_face_vertices[faceNumber]};
@@ -157,7 +142,6 @@ void OpenGLWindow::standardize() {
 void OpenGLWindow::paintGL() {
   float deltaTime{static_cast<float>(getDeltaTime())};
   m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
-  GLint colorLoc{glGetUniformLocation(m_program, "color")};
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -173,7 +157,6 @@ void OpenGLWindow::paintGL() {
   for (auto& shape : m_shapes) {
     if (shape.isActive) {
       setColor(shape.type);
-
       glDrawElements(GL_TRIANGLES, shape.verticesNumber, GL_UNSIGNED_INT, (void*)(previous * sizeof(GLuint)));
     }
     previous += shape.verticesNumber;    
@@ -191,9 +174,6 @@ void OpenGLWindow::paintUI() {
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    static bool faceCulling{};
-    ImGui::Checkbox("Back-face culling", &faceCulling);
 
     for (auto& shape : m_shapes) {
       ImGui::Checkbox(shape.name.c_str(), &shape.isActive);
@@ -223,14 +203,32 @@ void OpenGLWindow::terminateGL() {
 void OpenGLWindow::setColor(Type type) {
   GLint colorLoc{glGetUniformLocation(m_program, "color")};
   switch (type) {
-      case Type::Skin:
-        glUniform4f(colorLoc, m_skinColor[0], m_skinColor[1], m_skinColor[2], m_skinColor[3]);        
-        break;
-      case Type::LowerClothes:
-        glUniform4f(colorLoc, m_lowerClothesColor[0], m_lowerClothesColor[1], m_lowerClothesColor[2], m_lowerClothesColor[3]);
-        break;
-      case Type::UpperClothes:
-        glUniform4f(colorLoc, m_upperClothesColor[0], m_upperClothesColor[1], m_upperClothesColor[2], m_upperClothesColor[3]);
-        break;      
-    }
+    case Type::Skin:
+      glUniform4f(colorLoc, m_skinColor[0], m_skinColor[1], m_skinColor[2], m_skinColor[3]);        
+      break;
+    case Type::LowerClothes:
+      glUniform4f(colorLoc, m_lowerClothesColor[0], m_lowerClothesColor[1], m_lowerClothesColor[2], m_lowerClothesColor[3]);
+      break;
+    case Type::UpperClothes:
+      glUniform4f(colorLoc, m_upperClothesColor[0], m_upperClothesColor[1], m_upperClothesColor[2], m_upperClothesColor[3]);
+      break;      
+  }
+}
+
+Shape OpenGLWindow::getShape(tinyobj::shape_t shape) {
+    GLuint nameTypeDivisionIndex = shape.name.find("-");
+
+    std::string shapeName = shape.name.substr(0, nameTypeDivisionIndex);
+    std::string shapeType = shape.name.substr(nameTypeDivisionIndex + 1);
+
+    int shapeNumber = std::stoi(shapeType);
+    Type type = Type(shapeNumber);
+    
+    Shape mappedShape = Shape{
+      .name = shapeName,
+      .verticesNumber = shape.mesh.indices.size(),
+      .isActive = true,
+      .type = type
+    };
+    return mappedShape;
 }

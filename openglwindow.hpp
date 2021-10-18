@@ -3,6 +3,7 @@
 
 #include "abcg.hpp"
 #include "body_parts.hpp"
+#include <tiny_obj_loader.h>
 
 struct Vertex {
   glm::vec3 position;
@@ -49,6 +50,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void loadModelFromFile(std::string_view path);
   void standardize();
   void setColor(Type type);
+  Shape getShape(tinyobj::shape_t shape);
 };
 
 #endif
