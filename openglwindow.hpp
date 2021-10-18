@@ -2,6 +2,7 @@
 #define OPENGLWINDOW_HPP_
 
 #include "abcg.hpp"
+#include "body_parts.hpp"
 
 struct Vertex {
   glm::vec3 position;
@@ -15,6 +16,7 @@ struct Shape {
   std::string name;
   GLulong verticesNumber;
   bool isActive;
+  Type type;
 };
 
 class OpenGLWindow : public abcg::OpenGLWindow {
@@ -41,6 +43,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   std::vector<Shape> m_shapes;
   std::vector<GLuint> m_indices;
   std::vector<GLuint> m_verticesPerShape; //tobedeleted
+  glm::vec4 m_skinColor;
+  glm::vec4 m_lowerClothesColor;
+  glm::vec4 m_upperClothesColor;
 
   void loadModelFromFile(std::string_view path);
   void standardize();

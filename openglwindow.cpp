@@ -21,7 +21,7 @@ struct hash<Vertex> {
 }  // namespace std
 
 void OpenGLWindow::initializeGL() {
-  glClearColor(0, 0, 0, 1);
+  glClearColor(1, 1, 1, 1);
 
   // Enable depth buffering
   glEnable(GL_DEPTH_TEST);
@@ -96,17 +96,24 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
   // A key:value map with key=Vertex and value=index
   std::unordered_map<Vertex, GLuint> hash{};
 
-  // Loop over shapes
   for (const auto& shape : shapes) {
-    // Loop over faces(polygon)
+
     size_t indexOffset{0};
-    fmt::print("{} {}\n", shape.mesh.indices.size(), shape.name);
+    GLuint nameTypeDivisionIndex = shape.name.find("-");
+
+    std::string shapeName = shape.name.substr(0, nameTypeDivisionIndex);
+    std::string shapeType = shape.name.substr(nameTypeDivisionIndex + 1);
+
+    int shapeNumber = std::stoi(shapeType);
+    Type type = Type(shapeNumber);
     
     Shape mappedShaped = Shape{
-      .name = shape.name,
+      .name = shapeName,
       .verticesNumber = shape.mesh.indices.size(),
-      .isActive = true
+      .isActive = true,
+      .type = type
     };
+    
     m_shapes.push_back(mappedShaped);
 
     for (const auto faceNumber : iter::range(shape.mesh.num_face_vertices.size())) {
@@ -170,6 +177,7 @@ void OpenGLWindow::paintGL() {
   // Animate angle by 15 degrees per second
   float deltaTime{static_cast<float>(getDeltaTime())};
   m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
+  GLint colorLoc{glGetUniformLocation(m_program, "color")};
 
   // Clear color buffer and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -186,6 +194,20 @@ void OpenGLWindow::paintGL() {
   GLulong previous = 0;
   for (auto& shape : m_shapes) {
     if (shape.isActive) {
+      switch (shape.type)
+      {
+        case Type::Skin:
+          glUniform4f(colorLoc, m_skinColor[0], m_skinColor[1], m_skinColor[2], m_skinColor[3]);        
+          break;
+        case Type::LowerClothes:
+          glUniform4f(colorLoc, m_lowerClothesColor[0], m_lowerClothesColor[1], m_lowerClothesColor[2], m_lowerClothesColor[3]);
+          break;
+        case Type::UpperClothes:
+          glUniform4f(colorLoc, m_upperClothesColor[0], m_upperClothesColor[1], m_upperClothesColor[2], m_upperClothesColor[3]);
+          break;
+      
+      }
+
       glDrawElements(GL_TRIANGLES, shape.verticesNumber, GL_UNSIGNED_INT, (void*)(previous * sizeof(GLuint)));
     }
     previous += shape.verticesNumber;    
@@ -198,28 +220,6 @@ void OpenGLWindow::paintGL() {
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
 
-  // // Create window for slider
-  // {
-  //   ImGui::SetNextWindowPos(ImVec2(5, m_viewportHeight - 94));
-  //   ImGui::SetNextWindowSize(ImVec2(m_viewportWidth - 10, -1));
-  //   ImGui::Begin("Slider window", nullptr, ImGuiWindowFlags_NoDecoration);
-
-  //   // Create a slider to control the number of rendered triangles
-  //   {
-  //     // Slider will fill the space of the window
-  //     ImGui::PushItemWidth(m_viewportWidth - 25);
-
-  //     static int n{m_verticesToDraw / 3};
-  //     ImGui::SliderInt("", &n, 0, m_indices.size() / 3, "%d triangles");
-  //     m_verticesToDraw = n * 3;
-
-  //     ImGui::PopItemWidth();
-  //   }
-
-  //   ImGui::End();
-  // }
-
-  // Create a window for the other widgets
   {
     auto widgetSize{ImVec2(172, 332)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
@@ -233,35 +233,10 @@ void OpenGLWindow::paintUI() {
       ImGui::Checkbox(shape.name.c_str(), &shape.isActive);
     }
 
-    if (faceCulling) {
-      glEnable(GL_CULL_FACE);
-    } else {
-      glDisable(GL_CULL_FACE);
-    }
-
-    // CW/CCW combo box
-    {
-      static std::size_t currentIndex{};
-      std::vector<std::string> comboItems{"CW", "CCW"};
-
-      ImGui::PushItemWidth(70);
-      if (ImGui::BeginCombo("Front face", comboItems.at(currentIndex).c_str())) {
-        for (auto index : iter::range(comboItems.size())) {
-          const bool isSelected{currentIndex == index};
-          if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-            currentIndex = index;
-          if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-
-      if (currentIndex == 0) {
-        glFrontFace(GL_CW);
-      } else {
-        glFrontFace(GL_CCW);
-      }
-    }
+    auto colorEditFlags{ImGuiColorEditFlags_PickerHueBar};
+    ImGui::ColorEdit3("Skin Color", &m_skinColor.x, colorEditFlags);      
+    ImGui::ColorEdit3("Lower Clothes Color", &m_lowerClothesColor.x, colorEditFlags);      
+    ImGui::ColorEdit3("Upper Clothes Color", &m_upperClothesColor.x, colorEditFlags);      
 
     ImGui::End();
   }
