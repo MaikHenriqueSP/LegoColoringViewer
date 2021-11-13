@@ -4,6 +4,6 @@ uniform vec4 color;
 out vec4 outColor;
 
 void main() {
-  float depthFactor = gl_FragCoord.z - 0.15f;
+  float depthFactor = gl_FragCoord.z - 0.25f;
   outColor = color - depthFactor;
 }

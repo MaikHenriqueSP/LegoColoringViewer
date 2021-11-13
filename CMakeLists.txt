@@ -1,3 +1,3 @@
-project(atividade2)
+project(LegoColoredViewer)
 add_executable(${PROJECT_NAME} main.cpp openglwindow.cpp)
 enable_abcg(${PROJECT_NAME})

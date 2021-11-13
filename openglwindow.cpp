@@ -3,25 +3,22 @@
 #include <fmt/core.h>
 #include <imgui.h>
 
-
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
 
 namespace std {
-template <>
-struct hash<Vertex> {
-  size_t operator()(Vertex const& vertex) const noexcept {
-    std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
-  }
-};
+  template <> struct hash<Vertex> {
+    size_t operator()(Vertex const& vertex) const noexcept {
+      std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
+      return h1;
+    }
+  };
 }
 
 void OpenGLWindow::initializeGL() {
   glClearColor(1, 1, 1, 1);
-
   glEnable(GL_DEPTH_TEST);
 
   m_program = createProgramFromFile(getAssetsPath() + "loadmodel.vert", getAssetsPath() + "loadmodel.frag");
@@ -38,31 +35,25 @@ void OpenGLWindow::initializeGL() {
 
   glGenBuffers(1, &m_EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indices[0]) * m_indices.size(),
-               m_indices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indices[0]) * m_indices.size(), m_indices.data(), GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   glGenVertexArrays(1, &m_VAO);
-
   glBindVertexArray(m_VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+  
   GLint positionAttribute{glGetAttribLocation(m_program, "inPosition")};
   glEnableVertexAttribArray(positionAttribute);
-  glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
-                        sizeof(Vertex), nullptr);
+  glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-
   glBindVertexArray(0);
 }
 
 void OpenGLWindow::loadModelFromFile(std::string_view path) {
   tinyobj::ObjReaderConfig readerConfig;
-  readerConfig.mtl_search_path =
-      getAssetsPath() + "mtl/";  // Path to material files
-
   tinyobj::ObjReader reader;
 
   if (!reader.ParseFromFile(path.data(), readerConfig)) {
@@ -170,7 +161,7 @@ void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
 
   {
-    auto widgetSize{ImVec2(172, 332)};
+    auto widgetSize{ImVec2(170, 350)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
@@ -180,9 +171,9 @@ void OpenGLWindow::paintUI() {
     }
 
     auto colorEditFlags{ImGuiColorEditFlags_PickerHueBar};
-    ImGui::ColorEdit3("Skin Color", &m_skinColor.x, colorEditFlags);      
-    ImGui::ColorEdit3("Lower Clothes Color", &m_lowerClothesColor.x, colorEditFlags);      
-    ImGui::ColorEdit3("Upper Clothes Color", &m_upperClothesColor.x, colorEditFlags);      
+    ImGui::ColorEdit3("Skin", &m_skinColor.x, colorEditFlags);      
+    ImGui::ColorEdit3("Lower", &m_lowerClothesColor.x, colorEditFlags);      
+    ImGui::ColorEdit3("Upper", &m_upperClothesColor.x, colorEditFlags);      
 
     ImGui::End();
   }
