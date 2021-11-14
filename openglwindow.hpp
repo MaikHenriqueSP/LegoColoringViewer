@@ -38,7 +38,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   float m_angle{};
   int m_verticesToDraw{0};
   int m_totalVertices{0};
-
+  int m_drawIntervalMilliseconds{30};
   abcg::ElapsedTimer m_drawCoolDown;
 
   std::vector<Vertex> m_vertices;
@@ -53,6 +53,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void setColor(Type type);
   Shape getShape(tinyobj::shape_t shape);
   void renderShape();
+  
   
 };
 

@@ -151,7 +151,8 @@ void OpenGLWindow::paintGL() {
 }
 
 void OpenGLWindow::renderShape() {
-  if (m_drawCoolDown.elapsed() > 10.0 / 1000.0  && m_verticesToDraw <= m_totalVertices) {
+  fmt::print("{}\n",m_drawCoolDown.elapsed());
+  if (m_drawCoolDown.elapsed() > m_drawIntervalMilliseconds / 1000.0  && m_verticesToDraw <= m_totalVertices) {
     m_verticesToDraw += 30;
     m_drawCoolDown.restart();
   }
@@ -201,14 +202,21 @@ void OpenGLWindow::paintUI() {
       ImGui::Checkbox(shape.name.c_str(), &shape.isActive);
     }
 
+    ImGui::NewLine();
+
     auto colorEditFlags{ImGuiColorEditFlags_PickerHueBar};
     ImGui::ColorEdit3("Skin", &m_skinColor.x, colorEditFlags);      
     ImGui::ColorEdit3("Lower", &m_lowerClothesColor.x, colorEditFlags);      
     ImGui::ColorEdit3("Upper", &m_upperClothesColor.x, colorEditFlags);      
 
+    ImGui::NewLine();
+    
     if (ImGui::Button("Restart Draw", ImVec2(155, 30))) {
       m_verticesToDraw = 0;
     }
+
+    ImGui::NewLine();
+    ImGui::SliderInt("Interval in ms\n", &m_drawIntervalMilliseconds, 0, 100 );
 
     ImGui::End();
   }
