@@ -33,12 +33,12 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GLuint m_VBO{};
   GLuint m_EBO{};
   GLuint m_program{};
-
   int m_viewportWidth{};
   int m_viewportHeight{};
-
   float m_angle{};
-  int m_verticesToDraw{};
+  int m_verticesToDraw{0};
+
+  abcg::ElapsedTimer m_drawCoolDown;
 
   std::vector<Vertex> m_vertices;
   std::vector<Shape> m_shapes;
