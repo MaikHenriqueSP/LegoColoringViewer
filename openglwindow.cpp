@@ -151,7 +151,6 @@ void OpenGLWindow::paintGL() {
 }
 
 void OpenGLWindow::renderShape() {
-  
   if (m_drawCoolDown.elapsed() > 10.0 / 1000.0  && m_verticesToDraw <= m_totalVertices) {
     m_verticesToDraw += 30;
     m_drawCoolDown.restart();
@@ -193,7 +192,7 @@ void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
 
   {
-    auto widgetSize{ImVec2(170, 350)};
+    auto widgetSize{ImVec2(170, 390)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
@@ -207,8 +206,13 @@ void OpenGLWindow::paintUI() {
     ImGui::ColorEdit3("Lower", &m_lowerClothesColor.x, colorEditFlags);      
     ImGui::ColorEdit3("Upper", &m_upperClothesColor.x, colorEditFlags);      
 
+    if (ImGui::Button("Restart Draw", ImVec2(155, 30))) {
+      m_verticesToDraw = 0;
+    }
+
     ImGui::End();
   }
+
 }
 
 void OpenGLWindow::resizeGL(int width, int height) {
