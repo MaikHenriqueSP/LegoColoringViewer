@@ -37,6 +37,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportHeight{};
   float m_angle{};
   int m_verticesToDraw{0};
+  int m_totalVertices{0};
 
   abcg::ElapsedTimer m_drawCoolDown;
 
@@ -51,6 +52,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void standardize();
   void setColor(Type type);
   Shape getShape(tinyobj::shape_t shape);
+  void renderShape();
 };
 
 #endif

@@ -25,7 +25,7 @@ void OpenGLWindow::initializeGL() {
 
   loadModelFromFile(getAssetsPath() + "lego obj.obj");
   standardize();
-
+  m_totalVertices = m_indices.size();
   glGenBuffers(1, &m_VBO);
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(), m_vertices.data(), GL_STATIC_DRAW);
@@ -79,6 +79,7 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
     Shape mappedShaped = getShape(shape);    
     m_shapes.push_back(mappedShaped);
 
+    
     size_t indexOffset{0};
 
     for (const auto faceNumber : iter::range(shape.mesh.num_face_vertices.size())) {
@@ -103,6 +104,7 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
         m_indices.push_back(hash[vertex]);
       }
       indexOffset += numFaceVertices;
+      
     }
   }
 
@@ -141,8 +143,16 @@ void OpenGLWindow::paintGL() {
 
   GLint angleLoc{glGetUniformLocation(m_program, "angle")};
   glUniform1f(angleLoc, m_angle);
+  
+  renderShape();
 
-  if (m_drawCoolDown.elapsed() > 10.0 / 1000.0) {
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
+void OpenGLWindow::renderShape() {
+  
+  if (m_drawCoolDown.elapsed() > 10.0 / 1000.0  && m_verticesToDraw <= m_totalVertices) {
     m_verticesToDraw += 30;
     m_drawCoolDown.restart();
   }
@@ -162,6 +172,7 @@ void OpenGLWindow::paintGL() {
     
     GLulong verticesCount = 0;
     long verticesToDrawOnShape = tempVerticesToDraw - shape.verticesNumber;
+    
     if (verticesToDrawOnShape <= 0) {
       verticesCount = tempVerticesToDraw;
       tempVerticesToDraw = 0;
@@ -171,13 +182,11 @@ void OpenGLWindow::paintGL() {
     }
 
     setColor(shape.type);
-    glDrawElements( GL_TRIANGLES, verticesCount, GL_UNSIGNED_INT, (void*)(shapeOffset * sizeof(GLuint)));
+    glDrawElements(GL_TRIANGLES, verticesCount, GL_UNSIGNED_INT, (void*)(shapeOffset * sizeof(GLuint)));
 
     shapeOffset += shape.verticesNumber;
   }
 
-  glBindVertexArray(0);
-  glUseProgram(0);
 }
 
 void OpenGLWindow::paintUI() {
