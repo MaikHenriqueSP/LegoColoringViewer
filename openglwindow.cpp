@@ -163,7 +163,7 @@ void OpenGLWindow::paintGL() {
 
 void OpenGLWindow::renderShape() {
   if (m_drawCoolDown.elapsed() > m_drawIntervalMilliseconds / 1000.0  && m_verticesToDraw <= m_totalVertices) {
-    m_verticesToDraw += 30;
+    m_verticesToDraw += m_incrementedVerticesPerTime;
     m_drawCoolDown.restart();
   }
 
@@ -203,7 +203,7 @@ void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
 
   {
-    auto widgetSize{ImVec2(170, 390)};
+    auto widgetSize{ImVec2(170, 570)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
@@ -227,7 +227,11 @@ void OpenGLWindow::paintUI() {
     ImGui::NewLine();
     ImGui::LabelText("", "Interval in ms");    
     ImGui::SliderInt("", &m_drawIntervalMilliseconds, 0, 100 );
-  
+
+    ImGui::NewLine();
+    ImGui::LabelText("", "Vertices/time");    
+    ImGui::SliderInt(" ", &m_incrementedVerticesPerTime, 0, 100 );
+
     ImGui::End();
   }
 

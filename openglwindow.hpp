@@ -40,6 +40,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_verticesToDraw{0};
   int m_totalVertices{0};
   int m_drawIntervalMilliseconds{30};
+  int m_incrementedVerticesPerTime{30};
 
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
