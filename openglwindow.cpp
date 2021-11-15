@@ -26,15 +26,8 @@ void OpenGLWindow::initializeGL() {
   loadModelFromFile(getAssetsPath() + "lego obj.obj");
   standardize();
   m_totalVertices = m_indices.size();
-  glGenBuffers(1, &m_VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(), m_vertices.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  glGenBuffers(1, &m_EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indices[0]) * m_indices.size(), m_indices.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    configureBuffers(&m_VBO, GL_ARRAY_BUFFER, m_vertices.data(), sizeof(m_vertices[0]) * m_vertices.size());
+  configureBuffers(&m_EBO, GL_ELEMENT_ARRAY_BUFFER, m_indices.data(), sizeof(m_indices[0]) * m_indices.size());
 
   glGenVertexArrays(1, &m_VAO);
   glBindVertexArray(m_VAO);
@@ -48,6 +41,14 @@ void OpenGLWindow::initializeGL() {
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
   glBindVertexArray(0);
+}
+
+void OpenGLWindow::configureBuffers(GLuint* buffers, GLenum target, 	const void* data, GLsizeiptr size) {
+  // GLuint a = *buffer;
+  glGenBuffers(1, buffers);
+  glBindBuffer(target, *buffers);
+  glBufferData(target, size, data, GL_STATIC_DRAW);
+  glBindBuffer(target, 0);
 }
 
 void OpenGLWindow::loadModelFromFile(std::string_view path) {

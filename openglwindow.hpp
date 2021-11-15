@@ -53,7 +53,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void setColor(Type type);
   Shape getShape(tinyobj::shape_t shape);
   void renderShape();
-  
+  void configureBuffers(GLuint* buffers, GLenum target, 	const void* data, GLsizeiptr size);
   
 };
 
