@@ -54,7 +54,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   Shape getShape(tinyobj::shape_t shape);
   void renderShape();
   void configureBuffers(GLuint* buffers, GLenum target, 	const void* data, GLsizeiptr size);
-  
+  void generateModel(tinyobj::ObjReader reader);
 };
 
 #endif

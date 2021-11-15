@@ -22,16 +22,17 @@ void OpenGLWindow::initializeGL() {
   glEnable(GL_DEPTH_TEST);
 
   m_program = createProgramFromFile(getAssetsPath() + "loadmodel.vert", getAssetsPath() + "loadmodel.frag");
-
   loadModelFromFile(getAssetsPath() + "lego obj.obj");
+  
   standardize();
+  
   m_totalVertices = m_indices.size();
-    configureBuffers(&m_VBO, GL_ARRAY_BUFFER, m_vertices.data(), sizeof(m_vertices[0]) * m_vertices.size());
+
+  configureBuffers(&m_VBO, GL_ARRAY_BUFFER, m_vertices.data(), sizeof(m_vertices[0]) * m_vertices.size());
   configureBuffers(&m_EBO, GL_ELEMENT_ARRAY_BUFFER, m_indices.data(), sizeof(m_indices[0]) * m_indices.size());
 
   glGenVertexArrays(1, &m_VAO);
   glBindVertexArray(m_VAO);
-
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
   
   GLint positionAttribute{glGetAttribLocation(m_program, "inPosition")};
@@ -44,7 +45,6 @@ void OpenGLWindow::initializeGL() {
 }
 
 void OpenGLWindow::configureBuffers(GLuint* buffers, GLenum target, 	const void* data, GLsizeiptr size) {
-  // GLuint a = *buffer;
   glGenBuffers(1, buffers);
   glBindBuffer(target, *buffers);
   glBufferData(target, size, data, GL_STATIC_DRAW);
@@ -68,6 +68,10 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
     fmt::print("Warning: {}\n", reader.Warning());
   }
 
+  generateModel(reader);  
+}
+
+void OpenGLWindow::generateModel(tinyobj::ObjReader reader) {
   const auto& attrib{reader.GetAttrib()};
   const auto& shapes{reader.GetShapes()};
 
@@ -79,7 +83,6 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
   for (const auto& shape : shapes) {
     Shape mappedShaped = getShape(shape);    
     m_shapes.push_back(mappedShaped);
-
     
     size_t indexOffset{0};
 
@@ -108,7 +111,6 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
       
     }
   }
-
 }
 
 void OpenGLWindow::standardize() {
