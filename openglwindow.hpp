@@ -27,6 +27,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void paintUI() override;
   void resizeGL(int width, int height) override;
   void terminateGL() override;
+  glm::mat4 getRotation();
 
  private:
   GLuint m_VAO{};
@@ -39,6 +40,15 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_verticesToDraw{0};
   int m_totalVertices{0};
   int m_drawIntervalMilliseconds{30};
+
+  glm::mat4 m_modelMatrix{1.0f};
+  glm::mat4 m_viewMatrix{1.0f};
+  glm::mat4 m_projMatrix{1.0f};
+
+  void update();
+  
+  glm::mat4 m_rotation{1.0f};
+
   abcg::ElapsedTimer m_drawCoolDown;
 
   std::vector<Vertex> m_vertices;

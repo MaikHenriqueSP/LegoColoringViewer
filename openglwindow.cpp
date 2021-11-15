@@ -21,7 +21,7 @@ void OpenGLWindow::initializeGL() {
   glClearColor(1, 1, 1, 1);
   glEnable(GL_DEPTH_TEST);
 
-  m_program = createProgramFromFile(getAssetsPath() + "loadmodel.vert", getAssetsPath() + "loadmodel.frag");
+  m_program = createProgramFromFile(getAssetsPath() + "shader.vert", getAssetsPath() + "shader.frag");
   loadModelFromFile(getAssetsPath() + "lego obj.obj");
   
   standardize();
@@ -134,14 +134,22 @@ void OpenGLWindow::standardize() {
 }
 
 void OpenGLWindow::paintGL() {
-  float deltaTime{static_cast<float>(getDeltaTime())};
-  m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
+  update();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
   glUseProgram(m_program);
+
+  GLint viewMatrixLoc{glGetUniformLocation(m_program, "viewMatrix")};
+  GLint projMatrixLoc{glGetUniformLocation(m_program, "projMatrix")};
+  GLint modelMatrixLoc{glGetUniformLocation(m_program, "modelMatrix")};
+
+  glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
+  glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
+
   glBindVertexArray(m_VAO);
 
   GLint angleLoc{glGetUniformLocation(m_program, "angle")};
@@ -219,7 +227,7 @@ void OpenGLWindow::paintUI() {
     ImGui::NewLine();
     ImGui::LabelText("", "Interval in ms");    
     ImGui::SliderInt("", &m_drawIntervalMilliseconds, 0, 100 );
-
+  
     ImGui::End();
   }
 
@@ -268,4 +276,22 @@ Shape OpenGLWindow::getShape(tinyobj::shape_t shape) {
       .type = type
     };
     return mappedShape;
+}
+
+glm::mat4 OpenGLWindow::getRotation() {
+  glm::vec3 yAxis{0.0f, 1.0f, 0.0f};  
+  return glm::rotate(glm::mat4(1.0f), m_angle, yAxis) * m_rotation;;
+}
+
+void OpenGLWindow::update() {
+  float deltaTime{static_cast<float>(getDeltaTime())};
+  m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
+
+  m_modelMatrix = getRotation();
+  m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.5f),
+                glm::vec3(0.0f, 0.0f, 0.0f), 
+                glm::vec3(0.0f, 1.0f, 0.0f));
+      
+  auto aspectRatio{static_cast<float>(m_viewportWidth) / static_cast<float>(m_viewportHeight)};
+  m_projMatrix =  glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 5.0f);
 }
