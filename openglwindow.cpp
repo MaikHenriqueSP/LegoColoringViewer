@@ -151,7 +151,6 @@ void OpenGLWindow::paintGL() {
 }
 
 void OpenGLWindow::renderShape() {
-  fmt::print("{}\n",m_drawCoolDown.elapsed());
   if (m_drawCoolDown.elapsed() > m_drawIntervalMilliseconds / 1000.0  && m_verticesToDraw <= m_totalVertices) {
     m_verticesToDraw += 30;
     m_drawCoolDown.restart();
@@ -210,13 +209,13 @@ void OpenGLWindow::paintUI() {
     ImGui::ColorEdit3("Upper", &m_upperClothesColor.x, colorEditFlags);      
 
     ImGui::NewLine();
-    
     if (ImGui::Button("Restart Draw", ImVec2(155, 30))) {
       m_verticesToDraw = 0;
     }
 
     ImGui::NewLine();
-    ImGui::SliderInt("Interval in ms\n", &m_drawIntervalMilliseconds, 0, 100 );
+    ImGui::LabelText("", "Interval in ms");    
+    ImGui::SliderInt("", &m_drawIntervalMilliseconds, 0, 100 );
 
     ImGui::End();
   }
