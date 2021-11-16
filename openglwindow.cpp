@@ -167,8 +167,8 @@ void OpenGLWindow::renderShape() {
     m_drawCoolDown.restart();
   }
 
-  GLulong tempVerticesToDraw = m_verticesToDraw;
-  GLulong shapeOffset = 0;
+  ulong tempVerticesToDraw = m_verticesToDraw;
+  ulong shapeOffset = 0;
 
   for (auto& shape : m_shapes) {
     if (tempVerticesToDraw <= 0) {
@@ -180,7 +180,7 @@ void OpenGLWindow::renderShape() {
       continue;
     }
     
-    GLulong verticesCount = 0;
+    ulong verticesCount = 0;
     long verticesToDrawOnShape = tempVerticesToDraw - shape.verticesNumber;
     
     if (verticesToDrawOnShape <= 0) {

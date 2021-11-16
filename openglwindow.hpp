@@ -15,7 +15,7 @@ struct Vertex {
 
 struct Shape {
   std::string name;
-  GLulong verticesNumber;
+  ulong verticesNumber;
   bool isActive;
   Type type;
 };
