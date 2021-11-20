@@ -15,3 +15,6 @@ Project developed as an assignment for the MCTA008-17 Computer Graphics class, i
 
 # ABCg
 ABCg is the base framework of this project and it is available [here](https://github.com/hbatagelo/abcg).
+
+#### Credits
+Object model: https://free3d.com/3d-model/lego-man-8986.html
