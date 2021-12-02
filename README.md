@@ -17,5 +17,4 @@ Project developed as an assignment for the MCTA008-17 Computer Graphics class, i
 ABCg is the base framework of this project and it is available [here](https://github.com/hbatagelo/abcg).
 
 #### Credits
-Car model: https://free3d.com/3d-model/ferrari-formula-1-72527.html  
-Road model: https://free3d.com/3d-model/street-estrada-971348.html
+Object model: https://free3d.com/3d-model/lego-man-8986.html
